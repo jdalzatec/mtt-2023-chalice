@@ -79,7 +79,7 @@ def clean_old_info(event):
     for image in ImageModel.scan():
         created_at = image.created_at
         delta_time = now - created_at
-        delta_seconds = delta_time.seconds
+        delta_seconds = delta_time.total_seconds()
         if delta_seconds > 3600:
             s3_client.delete_object(Bucket=bucket_name, Key=image.get_file_name())
             image.delete()
