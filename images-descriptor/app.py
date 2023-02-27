@@ -74,7 +74,7 @@ def get_download_url(image_id):
 
 
 @app.schedule(Rate(1, unit=Rate.HOURS))
-def clean_old_info():
+def clean_old_info(event):
     now = datetime.utcnow().replace(tzinfo=timezone.utc)
     for image in ImageModel.scan():
         created_at = image.created_at
