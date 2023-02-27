@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import boto3
 import requests
-from chalice import Chalice, Response, BadRequestError, Rate
+from chalice import Chalice, BadRequestError, Rate, NotFoundError
 from chalicelib.model import ImageModel
 from chalicelib.utils import is_a_valid_image
 
@@ -25,7 +25,7 @@ def get_image(image_id):
         image = ImageModel.get(image_id)
         return json.loads(image.to_json())
     except ImageModel.DoesNotExist:
-        return Response(body=None, status_code=404)
+        raise NotFoundError('Not found')
 
 
 @app.route('/images/{image_id}', methods=['DELETE'])
@@ -34,9 +34,9 @@ def delete_image(image_id):
         image = ImageModel.get(image_id)
         s3_client.delete_object(Bucket=bucket_name, Key=image.get_file_name())
         image.delete()
-        return Response(body=None, status_code=200)
+        return None
     except ImageModel.DoesNotExist:
-        return Response(body=None, status_code=404)
+        raise NotFoundError('Not found')
 
 
 @app.route('/images', methods=['POST'], content_types=['image/png', 'image/jpg', 'image/jpeg'])
@@ -70,7 +70,7 @@ def get_download_url(image_id):
         )
         return {'url': url}
     except ImageModel.DoesNotExist:
-        return Response(body=None, status_code=404)
+        raise NotFoundError('Not found')
 
 
 @app.schedule(Rate(1, unit=Rate.HOURS))
