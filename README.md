@@ -11,7 +11,7 @@ You need to create a Table in DynamoDB for this exercise. Let's call it `images`
 aws dynamodb list-tables --profile jdac
 ```
 
-You also need to have a bucket on S3 in order to store the images. To check if the bucket already exists, execute:
+You also need to have a bucket on S3 in order to store the images. Let's call it `images-jdac-mtt`. To check if the bucket already exists, execute:
 
 ```bash
 aws s3 ls --profile jdac
