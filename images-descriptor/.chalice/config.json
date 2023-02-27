@@ -1,15 +1,17 @@
 {
   "version": "2.0",
   "app_name": "images-descriptor",
-  "environment_variables": {
-    "BUCKET_NAME": "images-jdac-mtt",
-    "TABLE_NAME": "images",
-    "CLARIFI_PAT": "CLARIFI_PAT",
-    "CLARIFAI_API_URL": "https://api.clarifai.com/v2/users/clarifai/apps/main/models/general-image-recognition/versions/aa7f35c01e0642fda5cf400f543e7c40/outputs"
-  },
+  "api_gateway_stage": "api",
+  "autogen_policy": false,
   "stages": {
     "dev": {
-      "api_gateway_stage": "api"
+      "app_name": "images-descriptor",
+      "environment_variables": {
+        "BUCKET_NAME": "images-jdac-mtt",
+        "TABLE_NAME": "images",
+        "CLARIFI_PAT": "CLARIFI_PAT",
+        "CLARIFAI_API_URL": "https://api.clarifai.com/v2/users/clarifai/apps/main/models/general-image-recognition/versions/aa7f35c01e0642fda5cf400f543e7c40/outputs"
+      }
     }
   }
 }
