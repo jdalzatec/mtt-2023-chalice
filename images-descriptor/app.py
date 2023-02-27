@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 import boto3
+import requests
 from chalice import Chalice, Response, BadRequestError, Rate
 from chalicelib.model import ImageModel
 from chalicelib.utils import is_a_valid_image
@@ -82,3 +83,37 @@ def clean_old_info():
         if delta_seconds > 0:
             s3_client.delete_object(Bucket=bucket_name, Key=image.get_file_name())
             image.delete()
+
+
+@app.on_s3_event(bucket=bucket_name, events=['s3:ObjectCreated:*'])
+def look_for_image_concepts(event):
+    key = event.key
+    image_id, _ = key.split('.')
+
+    image_url = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': key}, ExpiresIn=600)
+
+    clarifai_api_url = os.environ['CLARIFAI_API_URL']
+    clarifai_pat = os.environ['CLARIFI_PAT']
+    body = {
+        'inputs': [
+            {
+                'data': {
+                    'image': {
+                        'url': image_url,
+                    }
+                }
+            }
+        ]
+    }
+
+    headers = {
+        'Authorization': f'Key {clarifai_pat}'
+    }
+
+    response = requests.post(clarifai_api_url, headers=headers, json=body)
+    response_json = response.json()
+    concepts = response_json['outputs'][0]['data']['concepts']
+    clean_concepts = [{'name': concept['name'], 'value': concept['value']} for concept in concepts]
+
+    image = ImageModel.get(image_id)
+    image.update(actions=[ImageModel.concepts.set(clean_concepts)])

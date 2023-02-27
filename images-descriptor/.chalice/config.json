@@ -3,7 +3,9 @@
   "app_name": "images-descriptor",
   "environment_variables": {
     "BUCKET_NAME": "images-jdac-mtt",
-    "TABLE_NAME": "images"
+    "TABLE_NAME": "images",
+    "CLARIFI_PAT": "CLARIFI_PAT",
+    "CLARIFAI_API_URL": "https://api.clarifai.com/v2/users/clarifai/apps/main/models/general-image-recognition/versions/aa7f35c01e0642fda5cf400f543e7c40/outputs"
   },
   "stages": {
     "dev": {
