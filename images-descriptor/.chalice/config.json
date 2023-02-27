@@ -1,6 +1,10 @@
 {
   "version": "2.0",
   "app_name": "images-descriptor",
+  "environment_variables": {
+    "BUCKET_NAME": "images-jdac-mtt",
+    "TABLE_NAME": "images"
+  },
   "stages": {
     "dev": {
       "api_gateway_stage": "api"

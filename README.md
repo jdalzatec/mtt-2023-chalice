@@ -40,3 +40,9 @@ Create a new project with Chalice:
 ```bash
 chalice new-project images-descriptor
 ```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
