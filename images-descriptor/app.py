@@ -1,10 +1,10 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import boto3
-from chalice import Chalice, Response, BadRequestError
+from chalice import Chalice, Response, BadRequestError, Rate
 from chalicelib.model import ImageModel
 from chalicelib.utils import is_a_valid_image
 
@@ -58,3 +58,27 @@ def upload_image():
         ContentType=content_type,
     )
     return {'image_id': image_id}
+
+
+@app.route('/images/{image_id}/download_url', methods=['GET'])
+def get_download_url(image_id):
+    try:
+        image = ImageModel.get(image_id)
+        url = s3_client.generate_presigned_url(
+            'get_object', Params={'Bucket': bucket_name, 'Key': image.get_file_name()}, ExpiresIn=3600
+        )
+        return {'url': url}
+    except ImageModel.DoesNotExist:
+        return Response(body=None, status_code=404)
+
+
+@app.schedule(Rate(1, unit=Rate.HOURS))
+def clean_old_info():
+    now = datetime.utcnow().replace(tzinfo=timezone.utc)
+    for image in ImageModel.scan():
+        created_at = image.created_at
+        delta_time = now - created_at
+        delta_seconds = delta_time.seconds
+        if delta_seconds > 0:
+            s3_client.delete_object(Bucket=bucket_name, Key=image.get_file_name())
+            image.delete()
